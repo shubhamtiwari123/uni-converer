@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Timestamp Conversion Tool</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        label {
+            min-width: 120px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 14px;
+        }
+        input[type="datetime-local"] {
+            min-width: 200px;
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .result {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        .warning {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+        }
+        .verification {
+            background: rgba(255, 255, 0, 0.1);
+            border: 1px solid rgba(255, 255, 0, 0.3);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .highlight {
+            background: rgba(255, 255, 0, 0.2);
+            font-weight: bold;
+        }
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕐 Enhanced Timestamp Conversion Tool</h1>
+        
+        <div class="section">
+            <h2>📅 Key Date Information</h2>
+            <div id="keyDates"></div>
+        </div>
+
+        <div class="two-column">
+            <div class="section">
+                <h2>📆 Date to Unix Timestamp</h2>
+                <div class="input-group">
+                    <label>Select Date & Time:</label>
+                    <input type="datetime-local" id="dateTimeInput">
+                </div>
+                <div class="input-group">
+                    <label>Timezone:</label>
+                    <select id="timezoneSelect">
+                        <option value="UTC">UTC</option>
+                        <option value="local">Local Time</option>
+                    </select>
+                    <button onclick="convertDateToUnix()">Convert to Unix</button>
+                </div>
+                <div id="dateToUnixResult"></div>
+            </div>
+
+            <div class="section">
+                <h2>⏰ Unix Timestamp to Date</h2>
+                <div class="input-group">
+                    <label>Unix Timestamp:</label>
+                    <input type="number" id="unixInput" placeholder="e.g., 1672531200">
+                    <button onclick="convertUnixToDate()">Convert to Date</button>
+                </div>
+                <div id="unixToDateResult"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Custom Epoch Converter</h2>
+            <div class="input-group">
+                <label>Custom Epoch Date:</label>
+                <input type="date" id="customEpochDate" value="1899-12-30">
+                <label>Unit:</label>
+                <select id="customUnit">
+                    <option value="seconds">Seconds</option>
+                    <option value="minutes">Minutes</option>
+                    <option value="hours">Hours</option>
+                    <option value="days">Days</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Value to Convert:</label>
+                <input type="number" id="customValue" placeholder="Enter value">
+                <button onclick="convertCustomEpoch()">Convert</button>
+            </div>
+            <div class="input-group">
+                <label>Or Convert Date to Custom:</label>
+                <input type="datetime-local" id="dateToCustomInput">
+                <button onclick="convertDateToCustom()">Convert to Custom</button>
+            </div>
+            <div id="customResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>⏰ 1899 Moments Converter</h2>
+            <div class="input-group">
+                <label>Start Moment:</label>
+                <input type="number" id="startMoment" value="36816480" placeholder="Minutes since Dec 30, 1899">
+                <button onclick="convertMoment()">Convert</button>
+            </div>
+            <div id="momentResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Verification Tests</h2>
+            <button onclick="verifyGitHubComments()">Verify GitHub Examples</button>
+            <button onclick="runAdditionalTests()">Run Additional Tests</button>
+            <div id="verificationResults"></div>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const MOMENT_EPOCH = new Date(1899, 11, 30, 0, 0, 0); // December 30, 1899
+        const UNIX_EPOCH = new Date(1970, 0, 1, 0, 0, 0); // January 1, 1970
+        const MOMENTS_EPOCH_OFFSET_MINUTES = 25567 * 24 * 60; // 36816480
+        const NOM_DATE_EPOCH_OFFSET_SECONDS = 25567 * 24 * 60 * 60; // 2208988800
+
+        function calculateKeyDates() {
+            const diff_ms = UNIX_EPOCH.getTime() - MOMENT_EPOCH.getTime();
+            const diff_days = diff_ms / (1000 * 60 * 60 * 24);
+            const diff_minutes = diff_days * 24 * 60;
+            const diff_seconds = diff_days * 24 * 60 * 60;
+            
+            document.getElementById('keyDates').innerHTML = `
+                <div class="result">
+                    <strong>Unix Epoch:</strong> January 1, 1970 00:00:00 UTC<br>
+                    <strong>MOMENT Epoch:</strong> December 30, 1899 00:00:00 UTC<br>
+                    <strong>Difference:</strong> ${diff_days} days (${diff_minutes.toLocaleString()} minutes)<br>
+                    <strong>Current Unix Time:</strong> ${Math.floor(Date.now() / 1000)}<br>
+                    <strong>Current Date:</strong> ${new Date().toUTCString()}
+                </div>
+            `;
+        }
+
+        function convertDateToUnix() {
+            const dateTimeInput = document.getElementById('dateTimeInput').value;
+            const timezone = document.getElementById('timezoneSelect').value;
+            
+            if (!dateTimeInput) {
+                document.getElementById('dateToUnixResult').innerHTML = `
+                    <div class="result error">Please select a date and time</div>
+                `;
+                return;
+            }
+
+            let date;
+            if (timezone === 'UTC') {
+                // Treat input as UTC
+                date = new Date(dateTimeInput + 'Z');
+            } else {
+                // Treat input as local time
+                date = new Date(dateTimeInput);
+            }
+
+            const unixTimestamp = Math.floor(date.getTime() / 1000);
+            const isBeforeUnixEpoch = unixTimestamp < 0;
+            
+            document.getElementById('dateToUnixResult').innerHTML = `
+                <div class="result ${isBeforeUnixEpoch ? 'warning' : ''}">
+                    <strong>Input Date:</strong> ${dateTimeInput} (${timezone})<br>
+                    <strong>Parsed Date:</strong> ${date.toUTCString()}<br>
+                    <strong>Unix Timestamp:</strong> ${unixTimestamp.toLocaleString()}<br>
+                    <strong>Milliseconds:</strong> ${date.getTime().toLocaleString()}<br>
+                    ${isBeforeUnixEpoch ? '<br><strong>⚠️ Note:</strong> This date is before Unix Epoch (Jan 1, 1970)' : ''}
+                    <br><br>
+                    <strong>Verification:</strong> ${new Date(unixTimestamp * 1000).toUTCString()}
+                </div>
+            `;
+        }
+
+        function convertUnixToDate() {
+            const unixInput = parseInt(document.getElementById('unixInput').value);
+            
+            if (isNaN(unixInput)) {
+                document.getElementById('unixToDateResult').innerHTML = `
+                    <div class="result error">Please enter a valid Unix timestamp</div>
+                `;
+                return;
+            }
+
+            const date = new Date(unixInput * 1000);
+            const isValid = !isNaN(date.getTime());
+            
+            if (!isValid) {
+                document.getElementById('unixToDateResult').innerHTML = `
+                    <div class="result error">Invalid timestamp: ${unixInput}</div>
+                `;
+                return;
+            }
+
+            document.getElementById('unixToDateResult').innerHTML = `
+                <div class="result">
+                    <strong>Unix Timestamp:</strong> ${unixInput.toLocaleString()}<br>
+                    <strong>UTC Date:</strong> ${date.toUTCString()}<br>
+                    <strong>Local Date:</strong> ${date.toString()}<br>
+                    <strong>ISO String:</strong> ${date.toISOString()}<br>
+                    <strong>Day of Week:</strong> ${date.toLocaleDateString('en-US', { weekday: 'long' })}
+                </div>
+            `;
+        }
+
+        function convertCustomEpoch() {
+            const epochDate = document.getElementById('customEpochDate').value;
+            const unit = document.getElementById('customUnit').value;
+            const value = parseInt(document.getElementById('customValue').value);
+            
+            if (!epochDate || isNaN(value)) {
+                document.getElementById('customResult').innerHTML = `
+                    <div class="result error">Please enter valid epoch date and value</div>
+                `;
+                return;
+            }
+
+            const customEpoch = new Date(epochDate + 'T00:00:00Z');
+            let multiplier;
+            
+            switch(unit) {
+                case 'seconds': multiplier = 1000; break;
+                case 'minutes': multiplier = 1000 * 60; break;
+                case 'hours': multiplier = 1000 * 60 * 60; break;
+                case 'days': multiplier = 1000 * 60 * 60 * 24; break;
+            }
+            
+            const resultDate = new Date(customEpoch.getTime() + (value * multiplier));
+            const unixTimestamp = Math.floor(resultDate.getTime() / 1000);
+            const isBeforeUnixEpoch = unixTimestamp < 0;
+            
+            document.getElementById('customResult').innerHTML = `
+                <div class="result ${isBeforeUnixEpoch ? 'warning' : ''}">
+                    <strong>Custom Epoch:</strong> ${customEpoch.toUTCString()}<br>
+                    <strong>Value:</strong> ${value.toLocaleString()} ${unit}<br>
+                    <strong>Calculated Date:</strong> ${resultDate.toUTCString()}<br>
+                    <strong>Unix Timestamp:</strong> ${unixTimestamp.toLocaleString()}<br>
+                    ${isBeforeUnixEpoch ? '<br><strong>⚠️ Note:</strong> Result is before Unix Epoch' : ''}
+                    <br><br>
+                    <strong>Calculation:</strong> ${epochDate} + ${value.toLocaleString()} ${unit}
+                </div>
+            `;
+        }
+
+        function convertDateToCustom() {
+            const dateInput = document.getElementById('dateToCustomInput').value;
+            const epochDate = document.getElementById('customEpochDate').value;
+            const unit = document.getElementById('customUnit').value;
+            
+            if (!dateInput || !epochDate) {
+                document.getElementById('customResult').innerHTML = `
+                    <div class="result error">Please enter both date and epoch date</div>
+                `;
+                return;
+            }
+
+            const targetDate = new Date(dateInput);
+            const customEpoch = new Date(epochDate + 'T00:00:00Z');
+            
+            const diffMs = targetDate.getTime() - customEpoch.getTime();
+            
+            let value, divisor;
+            switch(unit) {
+                case 'seconds': divisor = 1000; break;
+                case 'minutes': divisor = 1000 * 60; break;
+                case 'hours': divisor = 1000 * 60 * 60; break;
+                case 'days': divisor = 1000 * 60 * 60 * 24; break;
+            }
+            
+            value = Math.floor(diffMs / divisor);
+            const isNegative = value < 0;
+            
+            document.getElementById('customResult').innerHTML = `
+                <div class="result ${isNegative ? 'warning' : ''}">
+                    <strong>Target Date:</strong> ${targetDate.toUTCString()}<br>
+                    <strong>Custom Epoch:</strong> ${customEpoch.toUTCString()}<br>
+                    <strong>Difference:</strong> ${value.toLocaleString()} ${unit}<br>
+                    ${isNegative ? '<br><strong>⚠️ Note:</strong> Target date is before the custom epoch' : ''}
+                    <br><br>
+                    <strong>Verification:</strong> ${epochDate} + ${value.toLocaleString()} ${unit} = ${new Date(customEpoch.getTime() + (value * divisor)).toUTCString()}
+                </div>
+            `;
+        }
+
+        function convertMoment() {
+            const moment = parseInt(document.getElementById('startMoment').value);
+            
+            if (isNaN(moment)) {
+                document.getElementById('momentResult').innerHTML = `
+                    <div class="result error">Please enter a valid moment value</div>
+                `;
+                return;
+            }
+            
+            const unix_minutes = moment - MOMENTS_EPOCH_OFFSET_MINUTES;
+            const unix_timestamp = unix_minutes * 60;
+            const date = new Date(unix_timestamp * 1000);
+            
+            document.getElementById('momentResult').innerHTML = `
+                <div class="result">
+                    <strong> Moment:</strong> ${moment.toLocaleString()}<br>
+                    <strong>Unix Minutes:</strong> ${unix_minutes.toLocaleString()}<br>
+                    <strong>Unix Timestamp:</strong> ${unix_timestamp.toLocaleString()}<br>
+                    <strong>Date:</strong> ${date.toUTCString()}<br>
+                    <strong>Local:</strong> ${date.toString()}<br>
+                    <br>
+                    <strong>Formula:</strong> (${moment.toLocaleString()} - ${MOMENTS_EPOCH_OFFSET_MINUTES.toLocaleString()}) × 60
+                </div>
+            `;
+        }
+
+        function verifyGitHubComments() {
+            const results = [];
+            
+            // Test cases from GitHub
+            const testCases = [
+                { nomdate: 37345, expected: "Saturday", description: "Easter Saturday 2002" },
+                { nomdate: 37621, expected: "Thursday", description: "New Year's Eve 2003" }
+            ];
+            
+            testCases.forEach(testCase => {
+                const unix_timestamp = (testCase.nomdate * 86400) - NOM_DATE_EPOCH_OFFSET_SECONDS;
+                const date = new Date(unix_timestamp * 1000);
+                const actual_day = date.toLocaleDateString('en-US', { weekday: 'long' });
+                
+                results.push({
+                    ...testCase,
+                    unix_timestamp,
+                    date: date.toUTCString(),
+                    actual_day,
+                    correct: actual_day.toLowerCase() === testCase.expected.toLowerCase()
+                });
+            });
+            
+            displayVerificationResults(results, "GitHub Comment Verification");
+        }
+
+        function runAdditionalTests() {
+            const results = [];
+            
+            // Test Unix epoch
+            const unixEpochTest = new Date(0);
+            results.push({
+                description: "Unix Epoch Test",
+                input: "0",
+                expected: "January 1, 1970",
+                actual: unixEpochTest.toUTCString(),
+                correct: unixEpochTest.getUTCFullYear() === 1970 && unixEpochTest.getUTCMonth() === 0 && unixEpochTest.getUTCDate() === 1
+            });
+            
+            // Test current time roundtrip
+            const now = new Date();
+            const nowUnix = Math.floor(now.getTime() / 1000);
+            const nowConverted = new Date(nowUnix * 1000);
+            results.push({
+                description: "Current Time Roundtrip",
+                input: `${nowUnix}`,
+                expected: now.toUTCString(),
+                actual: nowConverted.toUTCString(),
+                correct: Math.abs(now.getTime() - nowConverted.getTime()) < 1000
+            });
+            
+            displayVerificationResults(results, "Additional Tests");
+        }
+
+        function displayVerificationResults(results, title) {
+            let html = `
+                <div class="result verification">
+                    <h3>${title}:</h3>
+                    <table>
+                        <tr>
+                            <th>Test Case</th>
+                            <th>Input</th>
+                            <th>Expected</th>
+                            <th>Actual</th>
+                            <th>Status</th>
+                        </tr>
+            `;
+            
+            results.forEach(result => {
+                const rowClass = result.correct ? '' : 'error';
+                html += `
+                    <tr class="${rowClass}">
+                        <td>${result.description}</td>
+                        <td>${result.nomdate || result.input || 'N/A'}</td>
+                        <td>${result.expected}</td>
+                        <td>${result.actual_day || result.actual}</td>
+                        <td>${result.correct ? '✅ PASS' : '❌ FAIL'}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `</table><br>`;
+            html += `<strong>Overall Status:</strong> ${results.every(r => r.correct) ? '✅ All tests PASSED' : '❌ Some tests FAILED'}`;
+            html += `</div>`;
+            
+            document.getElementById('verificationResults').innerHTML = html;
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            calculateKeyDates();
+            // Set current date/time as default
+            const now = new Date();
+            const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+            document.getElementById('dateTimeInput').value = localISOTime;
+            document.getElementById('dateToCustomInput').value = localISOTime;
+            document.getElementById('unixInput').value = Math.floor(Date.now() / 1000);
+        };
+    </script>
+</body>
+</html>
